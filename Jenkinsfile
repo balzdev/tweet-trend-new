@@ -16,10 +16,10 @@ environment {
     
     stage('SonarQube analysis') {
     environment {    
-        scannerHome = tool 'balzdev-sonar-scanner';
+        scannerHome = tool 'balzdev-sonar-scanner'
     }
     steps {
-    withSonarQubeEnv('balzdev-sonarqube-server')
+    withSonarQubeEnv('balzdev-sonarqube-server') {
         sh "${scannerHome}/bin/sonar-scanner"
     }    
     }
