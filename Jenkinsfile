@@ -13,5 +13,16 @@ environment {
                 sh 'mvn clean deploy'
             }
         }
+    
+        stage('SonarQube analysis') {
+            environment {    
+                scannerHome = tool 'balzdev-sonar-scanner';
+        }
+        steps {
+            withSonarQubeEnv('balzdev-sonarqube-server')
+                sh "${scannerHome}/bin/sonar-scanner"
+            }    
     }
+  }
 }
+
