@@ -1,4 +1,6 @@
 def registry = 'https://balzdevops.jfrog.io/'
+def imageName = 'balzdevops.jfrog.io/balzdev-docker-local/ttrend'
+def version   = '2.1.2'
 pipeline {
     agent {
         node {
@@ -6,15 +8,8 @@ pipeline {
         }
     }
 environment {
-    PATH = "/opt/apache-maven-3.9.4/bin:$PATH"
+    PATH = "/opt/apache-maven-3.9.2/bin:$PATH"
 }
-    stages {
-        stage('build'){
-            steps {
-                sh 'mvn clean deploy'
-            }
-        }
-    
     stages {
         stage("build"){
             steps {
@@ -32,12 +27,12 @@ environment {
         }
 
 
-       
+
          stage("Jar Publish") {
         steps {
             script {
                     echo '<--------------- Jar Publish Started --------------->'
-                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifact-cred"
+                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artfiact-cred"
                      def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
                      def uploadSpec = """{
                           "files": [
@@ -57,7 +52,29 @@ environment {
             
             }
         }   
-    } 
-}
+    }
+
+
+    stage(" Docker Build ") {
+      steps {
+        script {
+           echo '<--------------- Docker Build Started --------------->'
+           app = docker.build(imageName+":"+version)
+           echo '<--------------- Docker Build Ends --------------->'
+        }
+      }
+    }
+
+            stage (" Docker Publish "){
+        steps {
+            script {
+               echo '<--------------- Docker Publish Started --------------->'  
+                docker.withRegistry(registry, 'artfiact-cred'){
+                    app.push()
+                }    
+               echo '<--------------- Docker Publish Ended --------------->'  
+            }
+        }
+    }
 }
 }
