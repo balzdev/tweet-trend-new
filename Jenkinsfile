@@ -2,7 +2,11 @@ def registry = 'https://balzdevops.jfrog.io/'
 def imageName = 'balzdevops.jfrog.io/balzdev-docker-local/ttrend'
 def version   = '2.1.2'
 pipeline {
-    
+    agent {
+        node {
+            label 'maven'
+        }
+    }
 
     stages {
        
